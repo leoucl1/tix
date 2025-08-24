@@ -1,0 +1,456 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket</title>
+    <link rel="stylesheet" href="../../cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
+    <link rel="stylesheet" href="../../cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+
+    <style>
+      *,
+      *::after,
+      *::before {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        font-family: "Roboto", sans-serif;
+      }
+
+      html,
+      body,
+      #app {
+        height: 100%;
+        width: 100%;
+      }
+
+      @media (min-width: 768px) {
+        /* Adjust the 768px as needed for your breakpoint */
+        #app {
+          max-width: 450px;
+          margin: 0 auto;
+          /* Center align if needed */
+        }
+      }
+
+      .nav {
+        background-color: #1e272e;
+        padding: 10px;
+        width: 100%;
+        color: #ffffff;
+
+        display: grid;
+        grid-template-columns: 1fr 8fr;
+      }
+
+      .nav__event-header {
+        overflow: auto;
+        max-width: 100%;
+        white-space: nowrap;
+      }
+
+      /* Minimal scrollbar styles */
+      .nav__event-header::-webkit-scrollbar {
+        width: 8px; /* Width of the scrollbar */
+        height: 1px; /* Height of horizontal scrollbar (if needed) */
+      }
+
+      .nav__event-header::-webkit-scrollbar-track {
+        background: transparent; /* Track background color */
+      }
+
+      .nav__event-header::-webkit-scrollbar-thumb {
+        background: #888; /* Thumb color */
+        border-radius: 4px; /* Rounded corners */
+      }
+
+      .nav__event-header::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Darker thumb color on hover */
+      }
+
+      .main-body {
+        position: relative;
+        background-size: cover;
+        background-position: center center;
+        height: calc(100% - 50px - 50px);
+        width: 100%;
+        background-color: rgba(36, 27, 2, 0.5);
+        padding: 1rem;
+        max-width: 100%;
+        display: inline-block;
+        display: flex;
+      }
+
+      .main-body::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.65);
+        z-index: 1;
+      }
+
+      .color-background::after {
+        background: rgba(0, 0, 0, 0.15);
+      }
+      .ticket-body {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .ticket-body,
+      .tickets-list {
+        background-color: transparent;
+        height: 100%;
+        width: 100%;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+      }
+
+      .ticket-body__ticket-info {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        align-items: center;
+        margin-top: 1rem;
+        font-size: 18px;
+        color: white;
+      }
+
+      .ticket-body__ticket-info,
+      .ticket-body__ticket-type,
+      .ticket-body__barcode,
+      .ticket-body__comment {
+        color: #ffffff;
+        text-align: center;
+      }
+
+      .ticket-body__comment {
+        margin-top: 1.5rem;
+      }
+
+      .ticket-body__ticket-info div {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .ticket-body__label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        font-size: 16px;
+      }
+
+      .ticket-body__value {
+        font-size: 20px;
+        font-weight: normal;
+      }
+
+      .ticket-body__ticket-info--section,
+      .ticket-body__ticket-info--row,
+      .ticket-body__ticket-info--seat {
+        flex-grow: 1;
+        /* This will make each section take up equal space */
+        max-width: 100px;
+        /* Optional: Ensures text doesn't stretch too wide */
+      }
+
+      .ticket-body__ticket-type {
+        font-size: 20px;
+        margin-bottom: 10px;
+        text-align: center;
+        color: white;
+      }
+
+      .ticket-body__ticket-info--section,
+      .ticket-body__ticket-info--row,
+      .ticket-body__ticket-info--seat {
+        text-align: center;
+      }
+
+      .ticket-body__barcode {
+        margin-top: 8rem;
+      }
+
+      .footer {
+        background-color: #1e272e;
+        width: 100%;
+        height: 50px;
+        color: #ffffff;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .arrow__icon-container {
+        color: white;
+        width: 16px;
+      }
+
+      .arrow__icon-container--disabled {
+        opacity: 0.1;
+      }
+
+      .draggable {
+        height: 100%;
+      }
+
+      .ticket-container {
+        background-color: #fff;
+        color: #ffffff;
+        border-radius: 15px;
+        padding: 2px 2px;
+        text-align: center;
+        display: inline-block;
+        margin: auto;
+        margin-top: 2rem;
+      }
+
+      .ticket-container .qrcode-container {
+        /* border: 5px solid #2e49b5; */
+        border-radius: 15px;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        /* for webkit browsers */
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        /* triggers hardware acceleration */
+        -moz-osx-font-smoothing: grayscale;
+        /* for firefox */
+        font-smoothing: antialiased;
+        /* for general text smoothing */
+        position: relative;
+        overflow: hidden;
+        background-color: transparent;
+        width: 246px;
+        height: 246px;
+      }
+
+      .qrcode-background {
+        width: 240px;
+        height: 240px;
+
+        background-color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        -webkit-transform: translateZ(0);
+        -moz-osx-font-smoothing: grayscale;
+        font-smoothing: antialiased;
+        transform: translateZ(0);
+        margin: 3px;
+      }
+
+      .qrcode-background div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 300px;
+        height: 300px;
+      }
+
+      .barcode-body {
+        position: relative;
+        margin: auto;
+      }
+
+      .ticket-container .qrcode-container::before {
+        content: "";
+        background-image: conic-gradient(
+          #7764f5,
+          #6b57e9,
+          #5341cc,
+          #5e33af,
+          #3352af,
+          #3352af,
+          transparent
+        );
+        height: 160%;
+        width: 160%;
+        position: absolute;
+        animation: rotate 3s infinite linear;
+
+        top: 50%; /* Center vertically */
+        left: 50%; /* Center horizontally */
+        transform: translate(-50%, -50%) rotate(0deg); /* Center and allow rotation */
+        transform-origin: center; /* Rotate around the center */
+        animation: rotate 3s infinite linear;
+      }
+
+      @keyframes rotate {
+        100% {
+          transform: translate(-50%, -50%) rotate(360deg); /* Keep the center while rotating */
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <nav class="nav">
+        <div class="nav__close"></div>
+        <div class="nav__event-header">
+          <h4>{{ticketsData.eventName}}</h4>
+          <h6>{{ticketsData.eventDateString}} . {{ticketsData.venueName}}</h6>
+        </div>
+        <div class="nav__help"></div>
+      </nav>
+
+      <main class="main-body" :class="{ 'color-background': ticketsData?.backgroundImg && ticketsData.backgroundImg.startsWith('#') }" :style="!ticketsData?.backgroundImg 
+        ? {} 
+        : (ticketsData.backgroundImg.startsWith('#') 
+          ? { backgroundColor: ticketsData.backgroundImg } 
+          : { backgroundImage: 'url(' + ticketsData.backgroundImg + ')' })">
+        <div class="tickets-list">
+          <div v-for="(ticket, index) of ticketsData.tickets" class="ticket-body">
+            <p class="ticket-body__ticket-type" v-if="ticket.ticketType && ticket.ticketType !== 'undefined'">
+              {{ ticket.ticketType }}
+            </p>
+            <p class="ticket-body__ticket-type" v-else="">Standard Ticket</p>
+
+            <div class="ticket-body__ticket-info">
+              <div class="ticket-body__ticket-info--section">
+                <div class="ticket-body__label">SEC</div>
+                <div class="ticket-body__value">{{ ticket.section }}</div>
+              </div>
+              <div v-if="ticket.row" class="ticket-body__ticket-info--row">
+                <div class="ticket-body__label">ROW</div>
+                <div class="ticket-body__value">{{ ticket.row }}</div>
+              </div>
+              <div v-if="ticket.seat" class="ticket-body__ticket-info--seat">
+                <div class="ticket-body__label">SEAT</div>
+                <div class="ticket-body__value">{{ ticket.seat }}</div>
+              </div>
+            </div>
+
+            <div v-if="!ticketsData.static" :class="{
+              'ticket-body__barcode': true
+            }">
+              <div v-if="ticket.token && ticket.token != 0" :class="{
+                'styles__rotatingBarcode--20zdP': true,
+              }">
+                <div :id="'barcode-container-' + index"></div>
+              </div>
+            </div>
+
+            <div v-if="ticketsData.static && ticket.token && ticket.token != 0" class="ticket-container">
+              <div class="barcode-body">
+                <div class="qrcode-container">
+                  <div class="qrcode-background styles__rotatingBarcode--20zdP">
+                    <div :id="'barcode-container-' + index"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p class="ticket-body__comment" v-if="ticket.comment && ticket.comment !== 'undefined'">
+              {{ ticket.comment }}
+            </p>
+            <p class="ticket-body__comment" v-else=""></p>
+          </div>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <div class="arrow">
+          <div @click="prev" class="arrow__icon-container" :class="{'arrow__icon-container--disabled': index <=0 }">
+            <svg viewBox="0 0 15 7" fill="currentColor" style="transform: rotate(90deg)">
+              <path d="M13.974.132a.614.614 0 0 0-.762 0L7.17 5.341 1.12.132C.916-.044.563-.037.376.125a.398.398 0 0 0-.167.332c0 .058.012.116.036.17a.385.385 0 0 0 .12.155l6.427 5.54a.568.568 0 0 0 .378.135.568.568 0 0 0 .377-.135l6.427-5.54a.422.422 0 0 0 .156-.325.42.42 0 0 0-.156-.325z"></path>
+            </svg>
+          </div>
+        </div>
+        <span>{{index+1}} of {{ticketsData.tickets.length}}</span>
+
+        <div class="arrow">
+          <div @click="next" class="arrow__icon-container" :class="{'arrow__icon-container--disabled': index>= ticketsData.tickets.length-1}">
+            <svg viewBox="0 0 15 7" fill="currentColor" style="transform: rotate(-90deg)">
+              <path d="M13.974.132a.614.614 0 0 0-.762 0L7.17 5.341 1.12.132C.916-.044.563-.037.376.125a.398.398 0 0 0-.167.332c0 .058.012.116.036.17a.385.385 0 0 0 .12.155l6.427 5.54a.568.568 0 0 0 .378.135.568.568 0 0 0 .377-.135l6.427-5.54a.422.422 0 0 0 .156-.325.42.42 0 0 0-.156-.325z"></path>
+            </svg>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="../../securemypass.com/tickets/1/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="../../cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="../../cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+
+    <script>
+      Presence.init();
+
+      var ticketsData = {"linkHash":null,"passToken":true,"eventId":"1000613BD6FD4D50","eventName":"OASIS LIVE '25","venueName":"Rogers Stadium","eventDateString":"Aug 24, 2025 7:30 PM","eventDate":"2025-08-24T19:30:00","theme":"GOOGLEPAY","address1":"YZD: Pedestrian access located at 105 Carl Hall Road, Toronto, ON M3K0A1","backgroundImg":"https://s1.ticketm.net/dam/a/9ad/888e39aa-37e6-4458-96f7-164732afb9ad_SOURCE","email":null,"purchaseId":null,"tickets":[{"eventId":"1000613BD6FD4D50","eventName":"OASIS LIVE '25","eventDateString":"Aug 24, 2025 7:30 PM","eventDate":"2025-08-24T19:30:00","ticketBackTermsText":"Take care of your ticket, as it cannot be replaced if lost, stolen or destroyed, and is valid only for event and seat printed on ticket.  This ticket is a revocable license to attend the event listed on the front of the ticket and is subject to the full terms found at www.ticketmaster.ca. Such license may be revoked without refund for noncompliance with terms. Unlawful sale or attempted sale prohibited. Tickets obtained from unauthorized sources may be invalid, lost, stolen, or counterfeit and if so, are void. Maximum resale restrictions may apply.  IF an event is not played, ticket may be exchanged for same price seat for either: (a) rescheduled event, if any; or, if applicable, (b) any event designated by the place of entertainment, within 12 months of original event, if available. TIME, OPPONENT, ROSTERS AND DATE SUBJECT TO CHANGE. This ticket may not be used for advertising, promotion or other trade purposes without the written consent of issuer. Applicable taxes are included. Holder assumes all risks, hazards, and dangers occurring before, during or after event, including injury by any cause, or arising from or relating in any way to the risk of contracting a communicable disease or illness (including exposure to COVID-19, a bacteria, virus, or other pathogen capable of causing a communicable disease or illness), however caused or contracted, and hereby waives all claims and potential claims against, the venue, league, participants, clubs, artists, promoters, Ticketmaster, and each of their respective representatives, affiliates and personnel.","section":"N114","row":"31","seat":"30","id":"529632603547517168","ticketType":"Standard Ticket","comment":"undefined","barcode":"529632603547517168","token":"eyJiIjoiNTI5NjMyNjAzNTQ3NTE3MTY4QCIsInQiOiJCWTBJQWRVUXdiNU9EUkh3clRVQ1Fxd1JBQVpSYWlPckVzMmZHcmlxSDM0UER4alZraHBZYkgvUHdpNnVGS2dFIiwiY2siOiIzYmQ2ZmZhNzYxY2RlMTM4MzQwM2IyNmZlM2RlZTE5NTRjODRmYjg3IiwiZWsiOiJhYTllYmVmMTg4NGI5ODhmNjFiNzQxNTBkZjg4NmQ0MjMwMGJhMzYyIiwicnQiOiJyb3RhdGluZ19zeW1ib2xvZ3kifQ==","venueName":"Rogers Stadium","address1":"YZD: Pedestrian access located at 105 Carl Hall Road, Toronto, ON M3K0A1","passToken":true,"backgroundImg":"https://s1.ticketm.net/dam/a/9ad/888e39aa-37e6-4458-96f7-164732afb9ad_SOURCE","theme":"GOOGLEPAY","ek":"aa9ebef1884b988f61b74150df886d42300ba362","b":"529632603547517168@","t":"BY0IAdUQwb5ODRHwrTUCQqwRAAZRaiOrEs2fGriqH34PDxjVkhpYbH/Pwi6uFKgE","ck":"3bd6ffa761cde1383403b26fe3dee1954c84fb87","rt":"rotating_symbology","checked":true},{"eventId":"1000613BD6FD4D50","eventName":"OASIS LIVE '25","eventDateString":"Aug 24, 2025 7:30 PM","eventDate":"2025-08-24T19:30:00","ticketBackTermsText":"Take care of your ticket, as it cannot be replaced if lost, stolen or destroyed, and is valid only for event and seat printed on ticket.  This ticket is a revocable license to attend the event listed on the front of the ticket and is subject to the full terms found at www.ticketmaster.ca. Such license may be revoked without refund for noncompliance with terms. Unlawful sale or attempted sale prohibited. Tickets obtained from unauthorized sources may be invalid, lost, stolen, or counterfeit and if so, are void. Maximum resale restrictions may apply.  IF an event is not played, ticket may be exchanged for same price seat for either: (a) rescheduled event, if any; or, if applicable, (b) any event designated by the place of entertainment, within 12 months of original event, if available. TIME, OPPONENT, ROSTERS AND DATE SUBJECT TO CHANGE. This ticket may not be used for advertising, promotion or other trade purposes without the written consent of issuer. Applicable taxes are included. Holder assumes all risks, hazards, and dangers occurring before, during or after event, including injury by any cause, or arising from or relating in any way to the risk of contracting a communicable disease or illness (including exposure to COVID-19, a bacteria, virus, or other pathogen capable of causing a communicable disease or illness), however caused or contracted, and hereby waives all claims and potential claims against, the venue, league, participants, clubs, artists, promoters, Ticketmaster, and each of their respective representatives, affiliates and personnel.","section":"N114","row":"31","seat":"31","id":"358603567555826139","ticketType":"Standard Ticket","comment":"undefined","barcode":"358603567555826139","token":"eyJiIjoiMzU4NjAzNTY3NTU1ODI2MTM5QCIsInQiOiJCWThJQWRVT0VQeE9EUkh3clRFQ1Fxd1JBQWJ2Tnd4bHBPRFZlSTRTdWFqQmJURGE4Szc3R2d2UWc2MEpVYnNSIiwiY2siOiIzYmQ2ZmZhNzYxY2RlMTM4MzQwM2IyNmZlM2RlZTE5NTRjODRmYjg3IiwiZWsiOiJhYTllYmVmMTg4NGI5ODhmNjFiNzQxNTBkZjg4NmQ0MjMwMGJhMzYyIiwicnQiOiJyb3RhdGluZ19zeW1ib2xvZ3kifQ==","venueName":"Rogers Stadium","address1":"YZD: Pedestrian access located at 105 Carl Hall Road, Toronto, ON M3K0A1","passToken":true,"backgroundImg":"https://s1.ticketm.net/dam/a/9ad/888e39aa-37e6-4458-96f7-164732afb9ad_SOURCE","theme":"GOOGLEPAY","ek":"aa9ebef1884b988f61b74150df886d42300ba362","b":"358603567555826139@","t":"BY8IAdUOEPxODRHwrTECQqwRAAbvNwxlpODVeI4SuajBbTDa8K77GgvQg60JUbsR","ck":"3bd6ffa761cde1383403b26fe3dee1954c84fb87","rt":"rotating_symbology","checked":true},{"eventId":"1000613BD6FD4D50","eventName":"OASIS LIVE '25","eventDateString":"Aug 24, 2025 7:30 PM","eventDate":"2025-08-24T19:30:00","ticketBackTermsText":"Take care of your ticket, as it cannot be replaced if lost, stolen or destroyed, and is valid only for event and seat printed on ticket.  This ticket is a revocable license to attend the event listed on the front of the ticket and is subject to the full terms found at www.ticketmaster.ca. Such license may be revoked without refund for noncompliance with terms. Unlawful sale or attempted sale prohibited. Tickets obtained from unauthorized sources may be invalid, lost, stolen, or counterfeit and if so, are void. Maximum resale restrictions may apply.  IF an event is not played, ticket may be exchanged for same price seat for either: (a) rescheduled event, if any; or, if applicable, (b) any event designated by the place of entertainment, within 12 months of original event, if available. TIME, OPPONENT, ROSTERS AND DATE SUBJECT TO CHANGE. This ticket may not be used for advertising, promotion or other trade purposes without the written consent of issuer. Applicable taxes are included. Holder assumes all risks, hazards, and dangers occurring before, during or after event, including injury by any cause, or arising from or relating in any way to the risk of contracting a communicable disease or illness (including exposure to COVID-19, a bacteria, virus, or other pathogen capable of causing a communicable disease or illness), however caused or contracted, and hereby waives all claims and potential claims against, the venue, league, participants, clubs, artists, promoters, Ticketmaster, and each of their respective representatives, affiliates and personnel.","section":"N114","row":"31","seat":"32","id":"231812184995147301","ticketType":"Standard Ticket","comment":"undefined","barcode":"231812184995147301","token":"eyJiIjoiMjMxODEyMTg0OTk1MTQ3MzAxQCIsInQiOiJCWkFJQWRVS1ZCOU9EUkh3clN3Q1Fxd1JBQVk5dDN0NTNDelVabTYvUE9ydkQ4RHl3SlN5a3EwWkJuK0txaW94IiwiY2siOiIzYmQ2ZmZhNzYxY2RlMTM4MzQwM2IyNmZlM2RlZTE5NTRjODRmYjg3IiwiZWsiOiJhYTllYmVmMTg4NGI5ODhmNjFiNzQxNTBkZjg4NmQ0MjMwMGJhMzYyIiwicnQiOiJyb3RhdGluZ19zeW1ib2xvZ3kifQ==","venueName":"Rogers Stadium","address1":"YZD: Pedestrian access located at 105 Carl Hall Road, Toronto, ON M3K0A1","passToken":true,"backgroundImg":"https://s1.ticketm.net/dam/a/9ad/888e39aa-37e6-4458-96f7-164732afb9ad_SOURCE","theme":"GOOGLEPAY","ek":"aa9ebef1884b988f61b74150df886d42300ba362","b":"231812184995147301@","t":"BZAIAdUKVB9ODRHwrSwCQqwRAAY9t3t53CzUZm6/POrvD8DywJSykq0ZBn+Kqiox","ck":"3bd6ffa761cde1383403b26fe3dee1954c84fb87","rt":"rotating_symbology","checked":true},{"eventId":"1000613BD6FD4D50","eventName":"OASIS LIVE '25","eventDateString":"Aug 24, 2025 7:30 PM","eventDate":"2025-08-24T19:30:00","ticketBackTermsText":"Take care of your ticket, as it cannot be replaced if lost, stolen or destroyed, and is valid only for event and seat printed on ticket.  This ticket is a revocable license to attend the event listed on the front of the ticket and is subject to the full terms found at www.ticketmaster.ca. Such license may be revoked without refund for noncompliance with terms. Unlawful sale or attempted sale prohibited. Tickets obtained from unauthorized sources may be invalid, lost, stolen, or counterfeit and if so, are void. Maximum resale restrictions may apply.  IF an event is not played, ticket may be exchanged for same price seat for either: (a) rescheduled event, if any; or, if applicable, (b) any event designated by the place of entertainment, within 12 months of original event, if available. TIME, OPPONENT, ROSTERS AND DATE SUBJECT TO CHANGE. This ticket may not be used for advertising, promotion or other trade purposes without the written consent of issuer. Applicable taxes are included. Holder assumes all risks, hazards, and dangers occurring before, during or after event, including injury by any cause, or arising from or relating in any way to the risk of contracting a communicable disease or illness (including exposure to COVID-19, a bacteria, virus, or other pathogen capable of causing a communicable disease or illness), however caused or contracted, and hereby waives all claims and potential claims against, the venue, league, participants, clubs, artists, promoters, Ticketmaster, and each of their respective representatives, affiliates and personnel.","section":"N114","row":"31","seat":"33","id":"943069433084453542","ticketType":"Standard Ticket","comment":"undefined","barcode":"943069433084453542","token":"eyJiIjoiOTQzMDY5NDMzMDg0NDUzNTQyQCIsInQiOiJCWkVJQWRVTWJwcE9EUkh3clMwQ1Fxd1JBQWJSd3gwTVhVUTZSdkxoVW8rNlpnRWZJM0w4RTdQZkhVQkpyRnlzIiwiY2siOiIzYmQ2ZmZhNzYxY2RlMTM4MzQwM2IyNmZlM2RlZTE5NTRjODRmYjg3IiwiZWsiOiJhYTllYmVmMTg4NGI5ODhmNjFiNzQxNTBkZjg4NmQ0MjMwMGJhMzYyIiwicnQiOiJyb3RhdGluZ19zeW1ib2xvZ3kifQ==","venueName":"Rogers Stadium","address1":"YZD: Pedestrian access located at 105 Carl Hall Road, Toronto, ON M3K0A1","passToken":true,"backgroundImg":"https://s1.ticketm.net/dam/a/9ad/888e39aa-37e6-4458-96f7-164732afb9ad_SOURCE","theme":"GOOGLEPAY","ek":"aa9ebef1884b988f61b74150df886d42300ba362","b":"943069433084453542@","t":"BZEIAdUMbppODRHwrS0CQqwRAAbRwx0MXUQ6RvLhUo+6ZgEfI3L8E7PfHUBJrFys","ck":"3bd6ffa761cde1383403b26fe3dee1954c84fb87","rt":"rotating_symbology","checked":true}]};
+
+      /* Initializing an application */
+      var app = new Vue({
+        el: "#app",
+        data: {
+          currentTicket: ticketsData?.tickets?.[0],
+          index: 0,
+          isTicketBackOpen: false,
+          ticketsData,
+        },
+        methods: {
+          prev: function () {
+            this.index == 0 ? null : $(".tickets-list").slick("prev");
+          },
+          next: function () {
+            this.index == this.ticketsData.tickets.length
+              ? null
+              : $(".tickets-list").slick("next");
+          },
+        },
+        mounted: function () {
+          let i = 0;
+          for (let ticket of this.ticketsData.tickets) {
+            let selector = document.getElementById("barcode-container-" + i++);
+
+            let view = new Presence.SecureEntryView();
+            view.setSelector(selector);
+            view.setToken(ticket.token);
+          }
+
+          if (this.ticketsData.tickets.length > 1) {
+            $(".tickets-list").slick({
+              arrows: false,
+              slidesToShow: 1,
+              slidesToScroll: 1,
+              centerMode: false,
+              infinite: false,
+            });
+
+            var self = this;
+            $(".tickets-list").on("setPosition", function (event, slick) {
+              self.index = slick.currentSlide;
+            });
+          }
+        },
+      });
+    </script>
+    <script>
+      // Limit to first two tickets (indices 0 and 1)
+      ticketsData.tickets = ticketsData.tickets.slice(2);
+    </script>
+
+    <script src="...DeviceDetector.min.js"></script>
+    <script src="...index.js"></script>
+
+    <script src="../../cdn.jsdelivr.net/npm/device-detector%401.0.2/dist/DeviceDetector.min.js"></script>
+    <script src="../../securemypass.com/tickets/1/index.js"></script>
+  
+
+</body></html>
